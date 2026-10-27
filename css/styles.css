@@ -243,3 +243,13 @@ html { scroll-padding-top: 72px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+.signup-form .form-field { margin-top: 13px; }
+.signup-form .form-field > label:not(.terms-check) { display: block; margin: 0 0 5px; color: #39435b; font-size: 10px; font-weight: 700; }
+.signup-form [aria-invalid="true"] { border-color: #c33b48; }
+.signup-form .terms-check input[aria-invalid="true"] + .check-ui { border-color: #c33b48; }
+.signup-form .field-error { display: block; margin-top: 5px; color: #b42332; font-size: 10px; line-height: 1.45; }
+.signup-form .field-error[hidden] { display: none; }
+.signup-form .terms-check { margin: 18px 0 8px; }
+.signup-form .terms-error { margin: 0 0 12px 24px; }
+.signup-form .form-message.is-error { color: #b42332; }

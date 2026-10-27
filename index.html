@@ -161,21 +161,37 @@
     <section class="signup-section section section-pad" id="signup">
       <div class="container signup-wrap">
         <div class="signup-copy"><span class="eyebrow">LET’S MAKE IT HAPPEN</span><h2>Your next step<br>starts <span>right here.</span></h2><p>Tell us a little about yourself. We’ll be in touch to help you get connected or bring your print project to life.</p><div class="signup-contact"><span class="contact-spark">✳</span><span>No pressure. Just a helpful conversation.</span></div></div>
-        <form class="signup-form" id="signup-form">
+        <form class="signup-form" id="signup-form" novalidate>
           <div class="form-heading"><strong>Let’s get to know you.</strong><span>Fields marked <b>*</b> are required.</span></div>
-          <label for="full-name">Full name <span>*</span></label>
-          <input id="full-name" name="fullName" type="text" autocomplete="name" placeholder="e.g. Alex Johnson" required>
-          <label for="email">Email address <span>*</span></label>
-          <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
-          <label for="plan">What are you interested in? <span>*</span></label>
-          <select id="plan" name="plan" required>
-            <option value="" disabled selected>Select a plan or service</option>
-            <option value="Basic">Basic plan</option><option value="Pro">Pro plan</option><option value="Business">Business plan</option><option value="Printing">Printing services</option><option value="Not sure">Help me decide</option>
-          </select>
-          <label class="terms-check"><input type="checkbox" name="terms" required><span class="check-ui" aria-hidden="true"></span><span>I agree to be contacted about BEATZ HUB services and have read the <a href="#privacy">privacy notice</a>. <b>*</b></span></label>
+          <div class="form-field">
+            <label for="full-name">Full name <span>*</span></label>
+            <input id="full-name" name="fullName" type="text" autocomplete="name" placeholder="e.g. Alex Johnson" aria-describedby="full-name-error" required>
+            <span class="field-error" id="full-name-error" hidden></span>
+          </div>
+          <div class="form-field">
+            <label for="email">Email address <span>*</span></label>
+            <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" aria-describedby="email-error" required>
+            <span class="field-error" id="email-error" hidden></span>
+          </div>
+          <div class="form-field">
+            <label for="plan">What are you interested in? <span>*</span></label>
+            <select id="plan" name="plan" aria-describedby="plan-error" required>
+              <option value="" disabled selected>Select a plan or service</option>
+              <option value="Basic">Basic plan</option><option value="Pro">Pro plan</option><option value="Business">Business plan</option><option value="Printing">Printing services</option><option value="Not sure">Help me decide</option>
+            </select>
+            <span class="field-error" id="plan-error" hidden></span>
+          </div>
+          <div class="form-field">
+            <label class="terms-check" for="terms">
+              <input id="terms" type="checkbox" name="terms" aria-describedby="terms-error" required>
+              <span class="check-ui" aria-hidden="true"></span>
+              <span>I agree to be contacted about BEATZ HUB services and have read the <a href="#privacy">privacy notice</a>. <b>*</b></span>
+            </label>
+            <span class="field-error terms-error" id="terms-error" hidden></span>
+          </div>
           <button class="btn btn--primary button button-yellow form-submit" type="submit">Request a call back <span aria-hidden="true">↗</span></button>
           <p class="form-message" id="form-message" role="status" aria-live="polite"></p>
-          <p class="form-footnote">This demo form doesn’t send or store your information.</p>
+          <p class="form-footnote">Your details are saved in this browser for this demo.</p>
         </form>
       </div>
     </section>

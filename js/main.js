@@ -136,28 +136,148 @@ const initHeaderShadow = () => {
 };
 
 /**
- * Initializes the sign-up form's local demo confirmation.
+ * Validates sign-up fields, prevents duplicate emails, and saves entries locally.
  */
 const initSignupForm = () => {
   const signupForm = document.querySelector("#signup-form");
   const formMessage = document.querySelector("#form-message");
+  const nameInput = document.querySelector("#full-name");
+  const emailInput = document.querySelector("#email");
+  const planSelect = document.querySelector("#plan");
+  const termsInput = document.querySelector("#terms");
 
   document.querySelectorAll("[data-plan]").forEach((link) => {
     link.addEventListener("click", () => {
-      const planSelect = document.getElementById("plan");
-      if (planSelect) planSelect.value = link.dataset.plan;
+      if (!planSelect) return;
+      planSelect.value = link.dataset.plan;
+      planSelect.dispatchEvent(new Event("change", { bubbles: true }));
     });
   });
 
-  if (!signupForm || !formMessage) return;
+  if (!signupForm || !formMessage || !nameInput || !emailInput || !planSelect || !termsInput) return;
+
+  const fields = [nameInput, emailInput, planSelect, termsInput];
+
+  const getFieldErrorElement = (field) => {
+    const errorId = field.getAttribute("aria-describedby");
+    return errorId ? document.getElementById(errorId) : null;
+  };
+
+  const setFieldError = (field, message) => {
+    const errorElement = getFieldErrorElement(field);
+    field.setAttribute("aria-invalid", String(Boolean(message)));
+
+    if (!errorElement) return;
+
+    errorElement.textContent = message;
+    errorElement.hidden = !message;
+  };
+
+  const showFormMessage = (message, isError = false) => {
+    formMessage.textContent = message;
+    formMessage.classList.toggle("is-error", isError);
+  };
+
+  const validateField = (field) => {
+    if (field === nameInput && nameInput.value.trim().length < 2) {
+      return "Please enter a name with at least 2 characters.";
+    }
+
+    if (field === emailInput && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim())) {
+      return "Enter a valid email address.";
+    }
+
+    if (field === planSelect && !planSelect.value) {
+      return "Choose a plan or service.";
+    }
+
+    if (field === termsInput && !termsInput.checked) {
+      return "Please agree before continuing.";
+    }
+
+    return "";
+  };
+
+  const readSignups = () => {
+    try {
+      const savedSignups = localStorage.getItem("signups");
+      if (savedSignups === null) return [];
+
+      const parsedSignups = JSON.parse(savedSignups);
+      if (!Array.isArray(parsedSignups)) {
+        throw new TypeError('The "signups" value is not an array.');
+      }
+
+      return parsedSignups;
+    } catch (error) {
+      console.error("Could not read signups from localStorage.", error);
+      return null;
+    }
+  };
+
+  fields.forEach((field) => {
+    field.setAttribute("aria-invalid", "false");
+
+    const eventName = field === planSelect || field === termsInput ? "change" : "input";
+    field.addEventListener(eventName, () => {
+      setFieldError(field, validateField(field));
+      showFormMessage("");
+    });
+  });
 
   signupForm.addEventListener("submit", (event) => {
     event.preventDefault();
-    if (!signupForm.reportValidity()) return;
+    showFormMessage("");
 
-    const name = new FormData(signupForm).get("fullName").trim();
-    formMessage.textContent = `Thanks, ${name}! Your details are ready. This demo form does not send them, but BEATZ HUB would be in touch next.`;
+    const invalidFields = fields.filter((field) => {
+      const error = validateField(field);
+      setFieldError(field, error);
+      return Boolean(error);
+    });
+
+    if (invalidFields.length > 0) {
+      invalidFields[0].focus();
+      return;
+    }
+
+    const signups = readSignups();
+    if (!signups) {
+      showFormMessage("We couldn’t access saved signups in this browser. Check local storage permissions and try again.", true);
+      return;
+    }
+
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim();
+    const normalizedEmail = email.toLowerCase();
+    const duplicate = signups.some((signup) =>
+      typeof signup?.email === "string" && signup.email.trim().toLowerCase() === normalizedEmail
+    );
+
+    if (duplicate) {
+      setFieldError(emailInput, "You’ve already signed up with this email.");
+      emailInput.focus();
+      showFormMessage("You've already signed up", true);
+      return;
+    }
+
+    const signup = {
+      name,
+      email,
+      plan: planSelect.value,
+      createdAt: new Date().toISOString()
+    };
+
+    try {
+      localStorage.setItem("signups", JSON.stringify([...signups, signup]));
+    } catch (error) {
+      console.error("Could not save signup to localStorage.", error);
+      showFormMessage("We couldn’t save your signup in this browser. Check available storage and try again.", true);
+      return;
+    }
+
     signupForm.reset();
+    fields.forEach((field) => setFieldError(field, ""));
+    showFormMessage(`Thanks, ${name}! Your signup has been saved.`, false);
   });
 };
 
